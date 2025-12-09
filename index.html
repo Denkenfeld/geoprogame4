@@ -2,94 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NEON DIVE // MATH OPS</title>
+    <title>NEON DIVE // CEREBRAL</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Impact, sans-serif; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; user-select: none; }
         canvas { display: block; }
 
-        /* HUD */
+        /* --- HUD LAYER --- */
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-        
-        /* THE MATH PROBLEM */
-        #equation-box {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); border: 2px solid #00ffff;
-            padding: 10px 40px; border-radius: 10px;
-            text-align: center; box-shadow: 0 0 30px rgba(0,255,255,0.3);
-        }
-        #equation-text { color: #fff; font-size: 60px; font-weight: bold; letter-spacing: 5px; text-shadow: 0 0 10px #00ffff; }
-        #equation-label { color: #888; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* SCORE & STATS */
-        .hud-text { position: absolute; color: #fff; font-weight: 900; font-style: italic; }
-        #score-box { top: 30px; left: 40px; font-size: 24px; border-left: 5px solid #ff0055; padding-left: 15px; }
-        #health-box { bottom: 30px; left: 40px; width: 300px; }
-        #hp-bar { width: 100%; height: 10px; background: #333; border: 1px solid #fff; transform: skewX(-20deg); }
-        #hp-fill { width: 100%; height: 100%; background: #00ff00; transition: width 0.2s; box-shadow: 0 0 10px #00ff00; }
-        
-        /* FEEDBACK OVERLAYS */
-        #feedback-msg {
-            position: absolute; top: 40%; width: 100%; text-align: center;
-            font-size: 100px; font-weight: 900; opacity: 0; transform: scale(0.5);
-            transition: all 0.2s; text-shadow: 0 0 20px #fff;
+        /* THE MATH PROBLEM - BIGGER & CENTERED */
+        #math-container {
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+            width: 60%; text-align: center; pointer-events: none;
         }
-        
+        #math-problem {
+            font-size: 80px; font-weight: 900; color: #fff;
+            text-shadow: 0 0 20px #00ffff, 4px 4px 0px #000;
+            background: rgba(0,0,0,0.6); padding: 10px 40px; border-radius: 20px;
+            border: 2px solid #00ffff; display: inline-block;
+            backdrop-filter: blur(5px); transition: transform 0.2s;
+        }
+        #math-label { color: #00ffff; font-size: 16px; letter-spacing: 5px; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
+
+        /* STATS */
+        .stat-box { position: absolute; color: #fff; font-weight: bold; font-style: italic; }
+        #score-display { top: 30px; left: 40px; font-size: 30px; border-left: 5px solid #ff0055; padding-left: 15px; }
+        #currency-display { top: 30px; right: 40px; font-size: 30px; color: #ffcc00; text-align: right; border-right: 5px solid #ffcc00; padding-right: 15px; }
+        #level-display { bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 20px; color: #aaa; letter-spacing: 3px; }
+
+        /* FEEDBACK OVERLAY */
+        #feedback {
+            position: absolute; top: 45%; width: 100%; text-align: center;
+            font-size: 120px; font-weight: 900; opacity: 0;
+            text-shadow: 0 0 50px white; transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         /* SCREENS */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5,5,10,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center;
-            pointer-events: auto; z-index: 50; transition: opacity 0.5s; backdrop-filter: blur(10px);
+            background: rgba(6, 7, 10, 0.95); backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: auto; z-index: 50; transition: opacity 0.5s;
         }
-        h1 { font-size: 100px; color: #fff; margin:0; text-shadow: 5px 5px 0 #ff0055, -5px -5px 0 #00ffff; }
-        
+
+        h1 { font-size: 100px; color: #fff; margin: 0; text-shadow: 0 0 40px #00ffff; letter-spacing: -2px; }
+        h2 { color: #ff0055; letter-spacing: 8px; font-size: 24px; margin-top: -10px; margin-bottom: 50px; }
+
         .btn {
-            background: transparent; border: 2px solid #fff; color: #fff; padding: 20px 60px;
-            font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 40px;
-            transition: 0.2s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            background: transparent; border: 2px solid #fff; color: #fff;
+            padding: 20px 80px; font-size: 24px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
         }
-        .btn:hover { background: #fff; color: #000; box-shadow: 0 0 40px #00ffff; }
+        .btn:hover { background: #fff; color: #000; box-shadow: 0 0 50px #00ffff; }
+
+        /* SHOP CARDS */
+        .shop-container { display: flex; gap: 30px; margin-bottom: 40px; }
+        .card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.5));
+            border: 1px solid #444; padding: 30px; width: 220px; text-align: center;
+            transition: 0.3s;
+        }
+        .card:hover { transform: translateY(-10px); border-color: #00ffff; box-shadow: 0 10px 30px rgba(0,255,255,0.2); }
+        .card-title { color: #00ffff; font-size: 18px; margin-bottom: 10px; font-weight: bold; }
+        .card-desc { color: #888; font-size: 12px; margin-bottom: 20px; height: 30px; }
+        .card-price { color: #ffcc00; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+        .buy-btn { width: 100%; padding: 10px; background: #222; border: 1px solid #555; color: #fff; cursor: pointer; }
+        .buy-btn:hover:enabled { background: #00ffff; color: #000; }
+        .buy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .hidden { opacity: 0; pointer-events: none; }
-        #vignette { position: fixed; width: 100%; height: 100%; box-shadow: inset 0 0 150px #000; pointer-events: none; z-index: 5; }
+        #vignette { position: fixed; width: 100%; height: 100%; box-shadow: inset 0 0 200px rgba(0,0,0,0.9); pointer-events: none; z-index: 5; }
     </style>
-</head>
-<body>
-
-    <div id="vignette"></div>
-
-    <div id="ui-layer">
-        <div id="equation-box">
-            <div id="equation-label">SOLVE TO SURVIVE</div>
-            <div id="equation-text">START</div>
-        </div>
-
-        <div id="score-box">SCORE: <span id="score-val">0</span></div>
-        
-        <div id="health-box">
-            <div style="color:#fff; margin-bottom:5px;">HULL INTEGRITY</div>
-            <div id="hp-bar"><div id="hp-fill"></div></div>
-        </div>
-
-        <div id="feedback-msg">CORRECT!</div>
-    </div>
-
-    <div id="menu" class="screen">
-        <h1>MATH OPS</h1>
-        <h2 style="color:#00ffff; letter-spacing: 5px;">HYPER-LEARNING MODULE</h2>
-        <p style="color:#aaa; max-width: 500px; text-align: center;">
-            Shoot the enemy with the CORRECT ANSWER.<br>
-            Wrong answers damage your hull.<br>
-            [ A / D ] Move &nbsp;|&nbsp; [ SPACE ] Shoot
-        </p>
-        <button class="btn" id="btn-start">INITIATE</button>
-    </div>
-
-    <div id="gameover" class="screen hidden">
-        <h1 style="color:#ff0055">FAIL</h1>
-        <h2 style="color:#fff">SCORE: <span id="final-score">0</span></h2>
-        <button class="btn" id="btn-restart">RETRY</button>
-    </div>
-
+    
+    <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
     <script type="importmap">
         {
             "imports": {
@@ -98,6 +84,72 @@
             }
         }
     </script>
+</head>
+<body>
+
+    <div id="vignette"></div>
+
+    <div id="ui-layer">
+        <div id="math-container">
+            <div id="math-label">QUANTUM CALCULATION REQUIRED</div>
+            <div id="math-problem">READY</div>
+        </div>
+
+        <div id="score-display">SCORE: 0</div>
+        <div id="currency-display">DATA: 0</div>
+        <div id="level-display">LEVEL 1</div>
+        <div id="feedback">CORRECT</div>
+    </div>
+
+    <div id="menu" class="screen">
+        <h1>NEON DIVE</h1>
+        <h2>CEREBRAL EDITION</h2>
+        <p style="color:#aaa; text-align:center; max-width:600px; margin-bottom:40px; font-size: 18px; line-height: 1.6;">
+            Solve the equation to open the gate.<br>
+            Fly into the <span style="color:#00ffff">CORRECT ANSWER</span>.<br>
+            <span style="color:#ffcc00">Headphones Recommended.</span>
+        </p>
+        <button class="btn" id="btn-start">INITIALIZE</button>
+    </div>
+
+    <div id="shop" class="screen hidden">
+        <h1 style="font-size: 60px; color: #00ffff;">NEURAL UPLINK</h1>
+        <p style="color:#aaa; margin-bottom:30px;">STAGE COMPLETE. UPGRADE SYSTEMS.</p>
+        
+        <div style="color: #ffcc00; font-size: 24px; margin-bottom: 20px;">AVAILABLE DATA: <span id="shop-currency">0</span></div>
+
+        <div class="shop-container">
+            <div class="card">
+                <div class="card-title">CHRONO BRAKE</div>
+                <div class="card-desc">Slower math speed. More time to think.</div>
+                <div class="card-price" id="cost-speed">100</div>
+                <button class="buy-btn" onclick="Game.buy('speed')">INSTALL</button>
+                <div style="font-size:10px; margin-top:5px; color:#666;">LVL <span id="lvl-speed">0</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">LOOT MAGNET</div>
+                <div class="card-desc">Pull Data Fragments from further away.</div>
+                <div class="card-price" id="cost-magnet">100</div>
+                <button class="buy-btn" onclick="Game.buy('magnet')">INSTALL</button>
+                <div style="font-size:10px; margin-top:5px; color:#666;">LVL <span id="lvl-magnet">0</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">VOID SHIELD</div>
+                <div class="card-desc">Survive one wrong answer.</div>
+                <div class="card-price" id="cost-shield">300</div>
+                <button class="buy-btn" onclick="Game.buy('shield')">CHARGE</button>
+                <div style="font-size:10px; margin-top:5px; color:#00ff00;" id="lvl-shield">OFFLINE</div>
+            </div>
+        </div>
+
+        <button class="btn" id="btn-next-level">NEXT SECTOR</button>
+    </div>
+
+    <div id="gameover" class="screen hidden">
+        <h1 style="color:#ff0055">SYNC LOST</h1>
+        <h2 style="color:#fff">FINAL SCORE: <span id="final-score">0</span></h2>
+        <button class="btn" id="btn-retry">REBOOT</button>
+    </div>
 
     <script type="module">
         import * as THREE from 'three';
@@ -105,117 +157,165 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- MATH ENGINE ---
-        const MathSys = {
-            level: 1,
-            currentQ: "",
-            currentA: 0,
+        /* --- AUDIO SYSTEM (Tone.js) --- */
+        const Sound = {
+            synth: null,
+            ambience: null,
+            isStarted: false,
             
-            generate() {
-                // Difficulty scaling
-                const type = this.level < 4 ? 'add' : this.level < 8 ? 'mult' : 'mix';
-                let a, b, op, qStr, ans;
-
-                if (type === 'add') {
-                    // Addition / Subtraction
-                    op = Math.random() > 0.5 ? '+' : '-';
-                    a = Math.floor(Math.random() * 10 * this.level) + 1;
-                    b = Math.floor(Math.random() * 10 * this.level) + 1;
-                    if (op === '-') { if(a < b) [a, b] = [b, a]; } // No negatives yet
-                    ans = op === '+' ? a + b : a - b;
-                    qStr = `${a} ${op} ${b}`;
-                } else if (type === 'mult') {
-                    // Multiplication
-                    a = Math.floor(Math.random() * (this.level)) + 2;
-                    b = Math.floor(Math.random() * 10) + 2;
-                    ans = a * b;
-                    qStr = `${a} x ${b}`;
-                } else {
-                    // Division / Mixed
-                    const ops = ['+', '-', 'x', '/'];
-                    op = ops[Math.floor(Math.random()*4)];
-                    if(op === '/') {
-                        b = Math.floor(Math.random() * 9) + 2;
-                        ans = Math.floor(Math.random() * 10) + 1;
-                        a = b * ans; // Ensure clean division
-                    } else if (op === 'x') {
-                        a = Math.floor(Math.random() * 12); b = Math.floor(Math.random() * 12);
-                        ans = a * b;
-                    } else {
-                        a = Math.floor(Math.random() * 50); b = Math.floor(Math.random() * 50);
-                        if(op==='-' && a<b) [a,b] = [b,a];
-                        ans = op==='+' ? a+b : a-b;
-                    }
-                    qStr = `${a} ${op} ${b}`;
-                }
-
-                this.currentQ = qStr + " = ?";
-                this.currentA = ans;
+            async init() {
+                await Tone.start();
+                this.isStarted = true;
                 
-                // UI Update
-                document.getElementById('equation-text').innerText = this.currentQ;
-                document.getElementById('equation-text').style.color = "#fff";
+                // 1. Space Piano (PolySynth)
+                const reverb = new Tone.Reverb(4).toDestination();
+                const delay = new Tone.FeedbackDelay("8n", 0.5).connect(reverb);
                 
-                return { q: qStr, a: ans };
+                this.synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.05, decay: 0.5, sustain: 0.1, release: 3 }
+                }).connect(delay);
+                this.synth.volume.value = -8;
+
+                // 2. Ambience (Noise)
+                const filter = new Tone.AutoFilter(0.1).toDestination().start();
+                this.ambience = new Tone.Noise("pink").connect(filter);
+                this.ambience.volume.value = -20;
+                
+                // 3. SFX Synths
+                this.kick = new Tone.MembraneSynth().toDestination();
+                this.pluck = new Tone.PluckSynth().toDestination();
+                this.metal = new Tone.MetalSynth({
+                    frequency: 200, envelope: { attack: 0.001, decay: 0.1, release: 0.01 },
+                    harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5
+                }).toDestination();
+                this.metal.volume.value = -10;
+
+                // Start Music Loop
+                this.startMusic();
             },
 
-            getAnswers() {
-                // Returns [Correct, Wrong1, Wrong2]
-                const correct = this.currentA;
-                let w1 = correct + Math.floor(Math.random() * 5) + 1;
-                let w2 = correct - Math.floor(Math.random() * 5) - 1;
-                if(w1 === correct) w1 += 2;
-                if(w2 === correct) w2 -= 2;
-                
-                // Shuffle
-                const arr = [{val: correct, isCorrect: true}, {val: w1, isCorrect: false}, {val: w2, isCorrect: false}];
-                for (let i = arr.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [arr[i], arr[j]] = [arr[j], arr[i]];
+            startMusic() {
+                this.ambience.start();
+                // Generative Arpeggio
+                const notes = ["C4", "Eb4", "G4", "Bb4", "C5", "G3"];
+                let step = 0;
+                Tone.Transport.scheduleRepeat((time) => {
+                    if(Math.random() > 0.3) {
+                        const note = notes[Math.floor(Math.random() * notes.length)];
+                        this.synth.triggerAttackRelease(note, "8n", time);
+                    }
+                    if(step % 8 === 0) {
+                        // Bass pulse
+                        this.kick.triggerAttackRelease("C2", "8n", time, 0.5);
+                    }
+                    step++;
+                }, "8n");
+                Tone.Transport.start();
+            },
+
+            play(sfx) {
+                if(!this.isStarted) return;
+                const now = Tone.now();
+                if(sfx === 'shoot') {
+                    // Filtered noise burst
+                    const noise = new Tone.Noise("white").toDestination();
+                    const env = new Tone.AmplitudeEnvelope({attack: 0.01, decay: 0.1, sustain: 0, release: 0}).toDestination();
+                    noise.connect(env);
+                    noise.start();
+                    env.triggerAttackRelease(0.1);
+                } else if (sfx === 'correct') {
+                    // Major Chord
+                    this.synth.triggerAttackRelease(["C5", "E5", "G5"], "4n", now);
+                } else if (sfx === 'wrong') {
+                    // Dissonant Cluster
+                    this.metal.triggerAttackRelease("C2", "8n", now);
+                    this.synth.triggerAttackRelease(["C#3", "F3"], "4n", now);
+                } else if (sfx === 'coin') {
+                    this.pluck.triggerAttackRelease("C6", "16n", now);
+                } else if (sfx === 'levelup') {
+                    // Frequency Sweep
+                    const osc = new Tone.Oscillator(200, "sine").toDestination().start();
+                    osc.frequency.rampTo(800, 1);
+                    osc.stop("+1");
                 }
-                return arr;
             }
         };
 
-        // --- GRAPHICS HELPER ---
-        function createTextTexture(text, color) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 256;
-            const ctx = canvas.getContext('2d');
+        /* --- MATH LOGIC --- */
+        const MathBrain = {
+            level: 1,
+            questionsSolved: 0,
             
-            // Background
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0,0,256,256);
+            generate() {
+                const diff = this.level; 
+                let q, a;
+                
+                // Difficulty Scaling
+                if(diff <= 2) { // Add/Sub
+                    const n1 = Math.floor(Math.random() * 20) + 1;
+                    const n2 = Math.floor(Math.random() * 20) + 1;
+                    if(Math.random() > 0.5) { q = `${n1} + ${n2}`; a = n1+n2; }
+                    else { const max=Math.max(n1,n2), min=Math.min(n1,n2); q = `${max} - ${min}`; a = max-min; }
+                } else if (diff <= 5) { // Mult
+                    const n1 = Math.floor(Math.random() * 10) + 2;
+                    const n2 = Math.floor(Math.random() * 9) + 2;
+                    q = `${n1} x ${n2}`; a = n1*n2;
+                } else { // Mixed / Hard
+                    const ops = ['+','-','x'];
+                    const op = ops[Math.floor(Math.random()*3)];
+                    if(op === 'x') {
+                        const n1 = Math.floor(Math.random() * 12)+2;
+                        const n2 = Math.floor(Math.random() * 10)+2;
+                        q = `${n1} x ${n2}`; a = n1*n2;
+                    } else {
+                        const n1 = Math.floor(Math.random() * 100);
+                        const n2 = Math.floor(Math.random() * 50);
+                        q = `${n1} ${op} ${n2}`; a = op==='+'?n1+n2 : n1-n2;
+                    }
+                }
+                
+                // UI
+                const el = document.getElementById('math-problem');
+                el.innerText = q + " = ?";
+                el.style.transform = "scale(1.2)";
+                setTimeout(()=>el.style.transform="scale(1)", 200);
+                
+                return { question: q, answer: a };
+            },
             
-            // Border
-            ctx.lineWidth = 10;
-            ctx.strokeStyle = color;
-            ctx.strokeRect(5,5,246,246);
-            
-            // Text
-            ctx.fillStyle = color;
-            ctx.font = 'bold 100px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            getOptions(correct) {
+                // Generate 2 wrong answers close to correct
+                let w1 = correct + (Math.floor(Math.random()*5)+1) * (Math.random()>0.5?1:-1);
+                let w2 = correct + (Math.floor(Math.random()*5)+1) * (Math.random()>0.5?1:-1);
+                while(w1 === correct || w1 === w2) w1 += 1;
+                while(w2 === correct || w2 === w1) w2 -= 1;
+                
+                const opts = [
+                    { val: correct, isCorrect: true },
+                    { val: w1, isCorrect: false },
+                    { val: w2, isCorrect: false }
+                ];
+                return opts.sort(() => Math.random() - 0.5); // Shuffle
+            }
+        };
+
+        /* --- GRAPHICS (THREE.JS) --- */
+        function makeTextTex(text, color) {
+            const cvs = document.createElement('canvas'); cvs.width=256; cvs.height=256;
+            const ctx = cvs.getContext('2d');
+            ctx.fillStyle='#000'; ctx.fillRect(0,0,256,256);
+            ctx.lineWidth=15; ctx.strokeStyle=color; ctx.strokeRect(10,10,236,236);
+            ctx.font='bold 100px Arial'; ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
             ctx.fillText(text, 128, 128);
-            
-            const tex = new THREE.CanvasTexture(canvas);
-            return tex;
+            return new THREE.CanvasTexture(cvs);
         }
 
-        // --- CORE ENGINE ---
-        const Game = {
-            scene: null, camera: null, renderer: null, composer: null,
-            state: 'MENU',
-            enemies: [], bullets: [], particles: [],
-            lanes: [-5, 0, 5], targetLane: 0,
-            score: 0, hp: 100,
-            
+        const Engine = {
+            scene: null, camera: null, renderer: null,
             init() {
-                // Scene Setup
                 this.scene = new THREE.Scene();
-                this.scene.fog = new THREE.FogExp2(0x000510, 0.02);
-                
+                this.scene.fog = new THREE.FogExp2(0x000000, 0.02);
                 this.camera = new THREE.PerspectiveCamera(80, window.innerWidth/window.innerHeight, 0.1, 1000);
                 this.camera.position.set(0, 3, 6);
                 
@@ -223,257 +323,351 @@
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(this.renderer.domElement);
                 
-                // Post Processing
-                const renderPass = new RenderPass(this.scene, this.camera);
+                const composer = new EffectComposer(this.renderer);
+                composer.addPass(new RenderPass(this.scene, this.camera));
                 const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-                bloom.strength = 1.5; bloom.radius = 0.5;
-                this.composer = new EffectComposer(this.renderer);
-                this.composer.addPass(renderPass);
-                this.composer.addPass(bloom);
+                bloom.strength = 1.2; bloom.radius = 0.5;
+                composer.addPass(bloom);
+                this.composer = composer;
+
+                window.onresize = () => {
+                    this.camera.aspect = window.innerWidth/window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.composer.setSize(window.innerWidth, window.innerHeight);
+                }
+            }
+        };
+
+        /* --- GAME LOGIC --- */
+        const Game = {
+            state: 'MENU',
+            score: 0, currency: 0, 
+            level: 1, questionCount: 0,
+            baseSpeed: 0.8,
+            laneX: [-6, 0, 6], targetLane: 0,
+            
+            enemies: [], bullets: [], items: [], particles: [],
+            
+            upgrades: { speed: 0, magnet: 0, shield: false },
+            
+            init() {
+                Engine.init();
+                this.buildWorld();
+                this.buildPlayer();
                 
                 // Inputs
+                document.getElementById('btn-start').onclick = () => this.startRun();
+                document.getElementById('btn-retry').onclick = () => this.startRun();
+                document.getElementById('btn-next-level').onclick = () => this.nextLevel();
+                
                 document.addEventListener('keydown', e => {
                     if(this.state !== 'RUN') return;
                     if(e.key === 'a' || e.key === 'ArrowLeft') this.targetLane = Math.max(-1, this.targetLane-1);
                     if(e.key === 'd' || e.key === 'ArrowRight') this.targetLane = Math.min(1, this.targetLane+1);
                     if(e.key === ' ' || e.key === 'w') this.shoot();
                 });
+
+                this.loop();
+            },
+
+            startRun() {
+                Sound.init(); // Start Audio Context
+                this.resetGame();
+                this.state = 'RUN';
+                this.ui('menu', false);
+                this.ui('gameover', false);
+                this.spawnWave();
+            },
+
+            resetGame() {
+                this.score = 0;
+                this.currency = 0;
+                this.level = 1;
+                this.questionCount = 0;
+                this.upgrades = { speed: 0, magnet: 0, shield: false };
+                MathBrain.level = 1;
+                this.updateHUD();
                 
-                document.getElementById('btn-start').onclick = () => this.start();
-                document.getElementById('btn-restart').onclick = () => this.start();
-                
-                this.buildWorld();
-                this.buildPlayer();
-                this.animate();
+                // Clear scene
+                this.enemies.forEach(e => Engine.scene.remove(e.mesh)); this.enemies = [];
+                this.items.forEach(i => Engine.scene.remove(i.mesh)); this.items = [];
             },
 
             buildWorld() {
                 // Grid
-                const grid = new THREE.GridHelper(200, 50, 0x00ffff, 0x220033);
+                const grid = new THREE.GridHelper(400, 100, 0x00ffff, 0x110022);
                 grid.position.y = -2;
-                this.scene.add(grid);
+                Engine.scene.add(grid);
                 this.grid = grid;
                 
-                // Moving Stars
+                // Starfield (Warp Effect)
                 const geo = new THREE.BufferGeometry();
                 const pos = [];
-                for(let i=0; i<1000; i++) pos.push((Math.random()-0.5)*100, (Math.random()-0.5)*50, (Math.random()-0.5)*200);
+                for(let i=0; i<4000; i++) pos.push((Math.random()-0.5)*300, (Math.random()-0.5)*150, (Math.random()-0.5)*400);
                 geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
                 this.stars = new THREE.Points(geo, new THREE.PointsMaterial({color:0xffffff, size:0.2}));
-                this.scene.add(this.stars);
+                Engine.scene.add(this.stars);
             },
 
             buildPlayer() {
                 this.player = new THREE.Group();
-                const mat = new THREE.MeshStandardMaterial({color:0x222222, emissive:0x00ffff, emissiveIntensity:0.5});
+                const mat = new THREE.MeshStandardMaterial({color:0x222222, emissive:0x00ffff, emissiveIntensity:0.6});
                 
-                const body = new THREE.Mesh(new THREE.ConeGeometry(0.5, 2, 4), mat);
-                body.rotation.x = Math.PI/2;
-                this.player.add(body);
+                // Hull
+                const hull = new THREE.Mesh(new THREE.ConeGeometry(0.6, 2.5, 4), mat);
+                hull.rotation.x = Math.PI/2;
+                this.player.add(hull);
                 
-                const wing = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.1, 1), mat);
-                wing.position.z = 0.5;
-                this.player.add(wing);
-                
-                this.scene.add(this.player);
-                this.playerX = 0;
-                this.playerTilt = 0;
-            },
+                // Wings
+                const wings = new THREE.Mesh(new THREE.BoxGeometry(3, 0.1, 1.2), mat);
+                wings.position.z = 0.5;
+                this.player.add(wings);
 
-            start() {
-                this.state = 'RUN';
-                this.score = 0;
-                this.hp = 100;
-                this.waveTimer = 0;
-                MathSys.level = 1;
-                
-                // UI Reset
-                document.getElementById('menu').classList.add('hidden');
-                document.getElementById('gameover').classList.add('hidden');
-                this.updateUI();
-                
-                // Clear scene
-                this.enemies.forEach(e => this.scene.remove(e.mesh));
-                this.enemies = [];
-                
-                MathSys.generate();
-                this.spawnWave();
+                // Shield
+                this.shieldMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 1), new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true, transparent:true, opacity:0}));
+                this.player.add(this.shieldMesh);
+
+                Engine.scene.add(this.player);
+                this.playerX = 0; this.playerTilt = 0;
             },
 
             spawnWave() {
-                const answers = MathSys.getAnswers(); // [ {val:4, isCorrect:true}, ... ]
+                const qData = MathBrain.generate();
+                const opts = MathBrain.getOptions(qData.answer);
                 
-                answers.forEach((ans, i) => {
-                    const color = '#ff0055'; // All look red initially (difficulty) or maybe blue? Let's use blue/cyan
-                    const tex = createTextTexture(ans.val.toString(), '#00ffff');
+                opts.forEach((opt, i) => {
+                    // Box with Number
+                    const tex = makeTextTex(opt.val, '#00ffff');
+                    const box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.5, 2.5), new THREE.MeshBasicMaterial({map: tex}));
+                    box.position.set(this.laneX[i], 0, -250); // FAR AWAY SPAWN for thinking time
                     
-                    const geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
-                    const mat = new THREE.MeshBasicMaterial({ map: tex });
-                    const mesh = new THREE.Mesh(geo, mat);
-                    
-                    mesh.position.set(this.lanes[i], 0, -150);
-                    this.scene.add(mesh);
-                    
-                    this.enemies.push({
-                        mesh: mesh,
-                        data: ans,
-                        active: true
-                    });
+                    Engine.scene.add(box);
+                    this.enemies.push({ mesh: box, data: opt, active: true });
                 });
+                
+                // Spawn coins between waves?
+                if(Math.random() > 0.5) {
+                    const coin = new THREE.Mesh(new THREE.OctahedronGeometry(0.5), new THREE.MeshBasicMaterial({color:0xffcc00, wireframe:true}));
+                    coin.position.set(this.laneX[Math.floor(Math.random()*3)], 0, -150);
+                    Engine.scene.add(coin);
+                    this.items.push(coin);
+                }
             },
 
             shoot() {
-                const geo = new THREE.BoxGeometry(0.2, 0.2, 2);
-                const mat = new THREE.MeshBasicMaterial({color: 0xffff00});
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.position.copy(this.player.position);
-                mesh.position.y = 0; // Shoot from center
-                this.scene.add(mesh);
-                this.bullets.push({mesh: mesh, vel: -5});
-                
-                // Audio placeholder
+                const b = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,2), new THREE.MeshBasicMaterial({color:0xff0055}));
+                b.position.copy(this.player.position);
+                Engine.scene.add(b);
+                this.bullets.push({mesh:b, vel:-6});
+                Sound.play('shoot');
             },
 
-            createExplosion(pos, color) {
-                for(let i=0; i<15; i++) {
-                    const m = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3), new THREE.MeshBasicMaterial({color:color}));
-                    m.position.copy(pos);
-                    const v = new THREE.Vector3((Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10);
-                    this.scene.add(m);
-                    this.particles.push({mesh:m, vel:v, life:1.0});
+            hit(isCorrect, pos) {
+                // Visual Explosion
+                for(let i=0; i<20; i++) {
+                    const p = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3), new THREE.MeshBasicMaterial({color: isCorrect?0x00ff00:0xff0000}));
+                    p.position.copy(pos);
+                    p.rotation.set(Math.random(), Math.random(), Math.random());
+                    Engine.scene.add(p);
+                    this.particles.push({mesh:p, vel: new THREE.Vector3((Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10), life:1});
+                }
+
+                if(isCorrect) {
+                    Sound.play('correct');
+                    this.showFeedback("CORRECT", "#00ff00");
+                    this.score += 100 * this.level;
+                    this.currency += 10 + (this.upgrades.magnet * 5);
+                    this.questionCount++;
+                    
+                    // Clear wave
+                    this.enemies.forEach(e => Engine.scene.remove(e.mesh));
+                    this.enemies = [];
+
+                    // Check Level Progression (Every 5 questions)
+                    if(this.questionCount >= 5) {
+                        this.openShop();
+                    } else {
+                        setTimeout(() => this.spawnWave(), 1000);
+                    }
+                } else {
+                    if(this.upgrades.shield) {
+                        this.upgrades.shield = false;
+                        Sound.play('wrong');
+                        this.showFeedback("SHIELD BROKEN", "#ffff00");
+                        this.updateHUD();
+                    } else {
+                        Sound.play('wrong');
+                        this.gameOver();
+                    }
+                }
+                this.updateHUD();
+            },
+            
+            openShop() {
+                this.state = 'SHOP';
+                Sound.play('levelup');
+                this.ui('shop', true);
+                this.updateShopUI();
+            },
+            
+            nextLevel() {
+                this.ui('shop', false);
+                this.state = 'RUN';
+                this.level++;
+                this.questionCount = 0;
+                MathBrain.level++; // Harder math
+                this.updateHUD();
+                this.spawnWave();
+            },
+
+            gameOver() {
+                this.state = 'GAMEOVER';
+                this.ui('gameover', true);
+                document.getElementById('final-score').innerText = this.score;
+            },
+
+            update(dt) {
+                // Environment Move
+                this.grid.position.z += 1.0;
+                if(this.grid.position.z > 0) this.grid.position.z = -50;
+                
+                const stars = this.stars.geometry.attributes.position.array;
+                for(let i=2; i<stars.length; i+=3) {
+                    stars[i] += 4;
+                    if(stars[i] > 20) stars[i] = -300;
+                }
+                this.stars.geometry.attributes.position.needsUpdate = true;
+
+                // Player Move
+                const tx = this.laneX[this.targetLane+1];
+                this.playerX += (tx - this.playerX) * 10 * dt;
+                this.player.position.x = this.playerX;
+                this.playerTilt += (-(this.player.position.x - tx)*0.5 - this.playerTilt) * 5 * dt;
+                this.player.rotation.z = this.playerTilt;
+                
+                // Shield Visual
+                this.shieldMesh.rotation.y += dt;
+                this.shieldMesh.material.opacity = this.upgrades.shield ? 0.3 : 0;
+
+                // Enemy Move (Speed controlled by upgrade)
+                const moveSpeed = 1.0 - (this.upgrades.speed * 0.15); // "Time Dilation"
+                
+                for(let i=this.enemies.length-1; i>=0; i--) {
+                    const e = this.enemies[i];
+                    e.mesh.position.z += moveSpeed;
+                    
+                    // Collision (Faceplant)
+                    if(e.mesh.position.distanceTo(this.player.position) < 3) {
+                        this.hit(false, e.mesh.position); // Crash = wrong answer
+                        Engine.scene.remove(e.mesh);
+                        this.enemies.splice(i, 1);
+                    }
+                }
+
+                // Bullets
+                for(let i=this.bullets.length-1; i>=0; i--) {
+                    const b = this.bullets[i];
+                    b.mesh.position.z += b.vel;
+                    
+                    // Check Hit
+                    let hit = false;
+                    for(let j=this.enemies.length-1; j>=0; j--) {
+                        const e = this.enemies[j];
+                        if(b.mesh.position.distanceTo(e.mesh.position) < 3) {
+                            this.hit(e.data.isCorrect, e.mesh.position);
+                            Engine.scene.remove(e.mesh);
+                            this.enemies.splice(j, 1);
+                            hit = true;
+                            break; // Bullet hits one thing
+                        }
+                    }
+                    if(hit || b.mesh.position.z < -300) {
+                        Engine.scene.remove(b.mesh);
+                        this.bullets.splice(i, 1);
+                    }
+                }
+
+                // Items
+                for(let i=this.items.length-1; i>=0; i--) {
+                    const it = this.items[i];
+                    it.position.z += moveSpeed;
+                    it.rotation.y += dt;
+                    
+                    // Magnet
+                    const range = 5 + (this.upgrades.magnet * 5);
+                    if(it.position.distanceTo(this.player.position) < range) {
+                        it.position.lerp(this.player.position, 0.2);
+                    }
+                    
+                    if(it.position.distanceTo(this.player.position) < 2) {
+                        Sound.play('coin');
+                        this.currency += 10;
+                        this.updateHUD();
+                        Engine.scene.remove(it);
+                        this.items.splice(i, 1);
+                    }
+                }
+
+                // Particles
+                for(let i=this.particles.length-1; i>=0; i--) {
+                    const p = this.particles[i];
+                    p.mesh.position.addScaledVector(p.vel, dt);
+                    p.life -= dt;
+                    p.mesh.scale.setScalar(p.life);
+                    if(p.life <= 0) {
+                        Engine.scene.remove(p.mesh);
+                        this.particles.splice(i,1);
+                    }
                 }
             },
 
-            feedback(text, color) {
-                const el = document.getElementById('feedback-msg');
-                el.innerText = text;
-                el.style.color = color;
-                el.style.opacity = 1;
-                el.style.transform = "scale(1.2)";
-                setTimeout(() => {
-                    el.style.opacity = 0;
-                    el.style.transform = "scale(0.5)";
-                }, 800);
+            loop() {
+                requestAnimationFrame(() => this.loop());
+                if(this.state === 'RUN') this.update(0.016);
+                Engine.composer.render();
             },
 
-            updateUI() {
-                document.getElementById('score-val').innerText = this.score;
-                document.getElementById('hp-fill').style.width = this.hp + "%";
+            // --- UI HELPERS ---
+            showFeedback(text, color) {
+                const el = document.getElementById('feedback');
+                el.innerText = text; el.style.color = color;
+                el.style.opacity = 1; el.style.transform = "scale(1.2)";
+                setTimeout(() => { el.style.opacity = 0; el.style.transform = "scale(0.5)"; }, 800);
             },
-
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                if (this.state === 'RUN') {
-                    // 1. Move Environment
-                    this.grid.position.z += 0.8;
-                    if(this.grid.position.z > 0) this.grid.position.z = -50;
-                    
-                    const stars = this.stars.geometry.attributes.position.array;
-                    for(let i=2; i<stars.length; i+=3) {
-                        stars[i] += 4; // Star speed
-                        if(stars[i] > 20) stars[i] = -200;
+            ui(id, show) {
+                const el = document.getElementById(id);
+                if(show) el.classList.remove('hidden'); else el.classList.add('hidden');
+            },
+            updateHUD() {
+                document.getElementById('score-display').innerText = "SCORE: " + this.score;
+                document.getElementById('currency-display').innerText = "DATA: " + this.currency;
+                document.getElementById('level-display').innerText = "SECTOR " + this.level;
+            },
+            updateShopUI() {
+                document.getElementById('shop-currency').innerText = this.currency;
+                document.getElementById('cost-speed').innerText = 100 * (this.upgrades.speed + 1);
+                document.getElementById('lvl-speed').innerText = this.upgrades.speed;
+                document.getElementById('cost-magnet').innerText = 100 * (this.upgrades.magnet + 1);
+                document.getElementById('lvl-magnet').innerText = this.upgrades.magnet;
+                const sl = document.getElementById('lvl-shield');
+                sl.innerText = this.upgrades.shield ? "ACTIVE" : "OFFLINE";
+                sl.style.color = this.upgrades.shield ? "#00ff00" : "#666";
+            },
+            buy(type) {
+                const cost = type === 'shield' ? 300 : 100 * (this.upgrades[type] + 1);
+                if(this.currency >= cost) {
+                    if(type === 'shield') {
+                        if(this.upgrades.shield) return;
+                        this.upgrades.shield = true;
+                    } else {
+                        this.upgrades[type]++;
                     }
-                    this.stars.geometry.attributes.position.needsUpdate = true;
-
-                    // 2. Move Player
-                    const tx = this.lanes[this.targetLane+1];
-                    this.playerX += (tx - this.playerX) * 0.15;
-                    this.player.position.x = this.playerX;
-                    this.playerTilt += (-(this.player.position.x - tx)*0.5 - this.playerTilt) * 0.1;
-                    this.player.rotation.z = this.playerTilt;
-
-                    // 3. Move Enemies
-                    let waveCleared = false;
-                    for(let i=this.enemies.length-1; i>=0; i--) {
-                        const e = this.enemies[i];
-                        e.mesh.position.z += 0.8; // Enemy Speed
-                        
-                        // Collision with Player
-                        if(e.mesh.position.distanceTo(this.player.position) < 2.5) {
-                            this.scene.remove(e.mesh);
-                            this.enemies.splice(i, 1);
-                            this.hp -= 20;
-                            this.feedback("CRASH!", "#ff0000");
-                            this.updateUI();
-                        }
-                        // Missed Enemy
-                        else if(e.mesh.position.z > 5) {
-                            this.scene.remove(e.mesh);
-                            this.enemies.splice(i, 1);
-                        }
-                    }
-                    
-                    // Spawn new wave if empty
-                    if(this.enemies.length === 0) {
-                        this.spawnWave();
-                    }
-
-                    // 4. Bullets
-                    for(let i=this.bullets.length-1; i>=0; i--) {
-                        const b = this.bullets[i];
-                        b.mesh.position.z += b.vel;
-                        
-                        // Hit detection
-                        let hit = false;
-                        for(let j=this.enemies.length-1; j>=0; j--) {
-                            const e = this.enemies[j];
-                            if(b.mesh.position.distanceTo(e.mesh.position) < 3) {
-                                // HIT!
-                                hit = true;
-                                this.createExplosion(e.mesh.position, e.data.isCorrect ? 0x00ff00 : 0xff0000);
-                                this.scene.remove(e.mesh);
-                                this.enemies.splice(j, 1);
-                                
-                                if(e.data.isCorrect) {
-                                    // CORRECT ANSWER
-                                    this.score += 100 * MathSys.level;
-                                    MathSys.level = Math.floor(this.score/500) + 1;
-                                    this.feedback("CORRECT!", "#00ff00");
-                                    
-                                    // Clear remaining wrong answers
-                                    this.enemies.forEach(rem => this.scene.remove(rem.mesh));
-                                    this.enemies = [];
-                                    
-                                    MathSys.generate();
-                                    setTimeout(() => this.spawnWave(), 500);
-                                } else {
-                                    // WRONG ANSWER
-                                    this.hp -= 15;
-                                    this.feedback("WRONG!", "#ff0000");
-                                }
-                                this.updateUI();
-                                break;
-                            }
-                        }
-                        
-                        if(hit || b.mesh.position.z < -200) {
-                            this.scene.remove(b.mesh);
-                            this.bullets.splice(i, 1);
-                        }
-                    }
-
-                    // 5. Particles
-                    for(let i=this.particles.length-1; i>=0; i--) {
-                        const p = this.particles[i];
-                        p.mesh.position.addScaledVector(p.vel, 0.016);
-                        p.life -= 0.05;
-                        p.mesh.scale.setScalar(p.life);
-                        if(p.life <= 0) {
-                            this.scene.remove(p.mesh);
-                            this.particles.splice(i,1);
-                        }
-                    }
-                    
-                    // Game Over
-                    if(this.hp <= 0) {
-                        this.state = 'GAMEOVER';
-                        document.getElementById('gameover').classList.remove('hidden');
-                        document.getElementById('final-score').innerText = this.score;
-                    }
+                    this.currency -= cost;
+                    Sound.play('coin');
+                    this.updateShopUI();
+                    this.updateHUD();
                 }
-                
-                this.composer.render();
             }
         };
 
